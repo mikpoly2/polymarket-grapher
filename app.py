@@ -133,7 +133,6 @@ else:
     # ---------- LEFT: controls + selection ----------
     with left:
         st.markdown("### Controls")
-        q = st.text_input("Search markets/outcomes", placeholder="e.g. 86000, yes, january...")
         show_sum = st.toggle("Show Sum", value=True)
         fidelity = st.slider("History fidelity (minutes)", 1, 60, 10, 1)
 
@@ -161,15 +160,11 @@ else:
         st.write("---")
         st.markdown("### Markets / Outcomes")
 
-        ql = q.strip().lower()
 
         for m in markets:
             mtitle = m["title"]
             outs = m["outcomes"]
 
-            if ql:
-                if ql not in mtitle.lower() and not any(ql in (o or "").lower() for o in outs):
-                    continue
 
             with st.expander(mtitle, expanded=False):
                 cols = st.columns(2)
