@@ -15,7 +15,6 @@ from plotter import build_step_aligned_df, make_chart
 
 st.set_page_config(page_title="Polymarket Grapher", page_icon="📈", layout="wide")
 
-# --- minimal, safe styling (не ломает стандартные элементы Streamlit)
 st.markdown("""
 <style>
 .block-container { max-width: 1200px; padding-top: 1.3rem; }
@@ -112,7 +111,6 @@ if st.session_state.stage == 1:
         except PolymarketError as e:
             st.error(str(e))
 
-# ==================== SCREEN 2 ====================
 else:
     event = st.session_state.event or {}
     markets = st.session_state.markets or []
@@ -127,7 +125,6 @@ else:
             st.session_state.stage = 1
             st.rerun()
 
-    # ✅ графику больше места
     left, right = st.columns([0.85, 2.65], gap="large")
 
     # ---------- LEFT: controls + selection ----------
@@ -136,11 +133,10 @@ else:
         show_sum = st.toggle("Show Sum", value=True)
         fidelity = st.slider("History fidelity (minutes)", 1, 60, 10, 1)
 
-        # ✅ dragmode selector
-        dragmode = st.selectbox(
+        dragmode = st.radio(
             "Mouse mode",
-            options=["pan", "zoom", "select", "lasso"],
-            index=0,
+            ["pan", "zoom", "select", "lasso"],
+            horizontal=True,
             help="pan: move chart • zoom: box zoom • select/lasso: select points",
         )
 
@@ -183,7 +179,6 @@ else:
                     else:
                         st.session_state.selected.pop(key, None)
 
-    # ---------- RIGHT: chart ----------
     with right:
         if not st.session_state.selected:
             st.markdown('<div class="card">', unsafe_allow_html=True)
@@ -196,7 +191,6 @@ else:
             with st.spinner("Loading price history..."):
                 series_map = {}
 
-                # 1) Polymarket series (selected outcomes)
                 for item in st.session_state.selected.values():
                     token_id = item["token_id"]
                     label = item["label"]
@@ -211,7 +205,6 @@ else:
 
                 prob_df = build_step_aligned_df(series_map)
 
-                # 2) Crypto overlay (НЕ reindex на prob_df.index)
                 crypto_series = None
                 sym = crypto_symbol(st.session_state.crypto)
                 if sym is not None:
@@ -239,10 +232,8 @@ else:
 
                 fig = make_chart(prob_df, crypto_series=crypto_series, show_sum=show_sum)
 
-                # ✅ bigger + chosen drag mode
                 fig.update_layout(height=820, dragmode=dragmode)
 
-                # ✅ more "machinations"
                 config = {
                     "displayModeBar": True,
                     "scrollZoom": True,
